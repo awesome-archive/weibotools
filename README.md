@@ -105,7 +105,7 @@ conf.py
 
 #### 功能3 ###
 
-IG用户上传1张图片,触发post到回调url /call,weibottols获取IG最新的图片,并发布到新浪微博.实时同步,基本无延时.
+IG用户上传1张图片,触发post到回调url /call,weibotools获取IG最新的图片,并发布到新浪微博.实时同步,基本无延时.
 
 ## 扩展 ##
 
