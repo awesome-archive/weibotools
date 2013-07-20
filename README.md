@@ -4,66 +4,110 @@
 
 1. 新浪微博时间线与收藏夹生成rss;
 2. 新浪微博新发布原创微博同步到腾讯微博;
-3. instagram发发布图片同步到新浪微博.
-
-### 环境 ###
-#### 部署环境 ####
-
-SAE python环境,开启memcached支持;
-
-使用tornado框架,Cron定时任务.
-
-#### 开发环境 ####
-
-树莓派,tornado 3.1
-
-
-## 概述 ##
-
-Weibo2rss是一个通过Django实现的微博小工具，主要功能实现微博timeline与favorites输出为RSS。
-
-程序员T(就是我,以下用T代替)一直想翻过伟大的GFW更新Twitter，所以想了一个主意，把T更新的新浪微博通过某种方式转换为RSS，然后用IFTTT或者Google feedburner同步到Twitter。
-
-以前T一直用着[水脉烟香](http://ishow.sinaapp.com/rss.php)提供的RSS生成器来同步到Twitter，8月的某一天水脉烟香停掉了这个RSS生成器，然后10月的某一天，又从新开放了，但是开始收费，这么小的东西也能收费？我也不能理解。
-10月的时候T开始学习python和Django，既然有需求，那不如学以致用，所有有了Weibo2rss这个项目。12月IFTTT可以绑定印象笔记，所以T又实现了收藏微博的RSS，这样就可以把微博直接收藏到印象笔记了。
-
-T的新浪微博: [@Timmy](http://weibo.com/u/2283077624) 请私信联系
-
-[Weibo2rss demo](http://pythonweibo.sinaapp.com)
-
+3. instagram发发布图片同步到新浪微博(iphone请无视).
 
 ## 部署 ##
+### 环境 ###
 
-Weibo2rss是部署到SAE上的APP，你需要在SAE上新建一个python app，到新浪微博开放平台申请一个APP。对以下文件作对应修改。
+SAE(Sina App Engine) python tornado环境,memcached支持(如果需要功能2).
 
+### 部署 ###
+
+需要修改的文件:
+
+    weibotools
+        |--config.yaml
+        |--conf.py
+        
 config.yaml
 
-    name: ''xxxx'' # 这里写你在SAE上申请的APP name
+    ---
+    name: pythonweibo
+    version: 1
+    accesskey: 
+    cron:
+        - description: cron sync
+          url: sync
+          schedule: every 5 mins
+          timezone: Beijing
 
+name字段改为SAE应用名称,accesskey字段改为SAE应用对应的accesskey值,该值在SAE应用管理界面可以找到.
 
-weibo2rss/weibotimeline.py
+如果不需要腾讯微博同步功能cron字段以下的内容应该删除,cron内容定义了定时任务.
 
-    APP_KEY = 'xxxx' # 你申请的微博APP_KEY
-    APP_SECRET = 'xxxx' # 你申请的微博APP_SECRET
-    CALLBACK_URL = 'http://xxxx/callback' # 你的网址回调页，需与微博开放平台上设置的地址一致
+conf.py
 
+    # 新浪微博app参数
+    SINA_CONF = {
+            'app_key' : "",
+            'app_secret' : "",
+            'redirect_uri' : "",
+            'access_token' : "",
+            }
 
-导入数据库：在SAE上初始化mysql后，导入weibo2rss.sql里保存的sql语句。
+要使用功能1需要配置这段代码,字典里的前3个元为注册微博应用对应的内容,最后的access_token可以在
+[API测试工具](http://open.weibo.com/tools/console)获取.这段配置完成后,功能1就可以正常使用了.
 
-SAE上创建一个版本，把修改好的代码svn上传到该版本上，就完成部署了。
+    # 腾讯微博app参数
+    TENC_CONF = {
+            'app_key' : "",
+            'app_secret' : "",
+            'callback_url' : "",
+            'access_token' : "",
+            'openid' : "",
+            }
 
+功能2需要开启SAE memcached支持,并保留config.yaml里cron下类容.配置腾讯微博应用参数,
+获取access_token和openid的python方法在added目录下的getqq.py脚本可以找到.
 
-## 开发说明 ##
+    # instagram app参数
+    INST_CONF = {
+            'access_token' : "",
+            }
 
-### 开发环境 ###
+功能3配置比较复杂,首先用added下的get_access_token.py脚本获取access_token,修改subscribe.py脚本,注册回调url(/call).
 
-Weibo python SDK
+## 开发 ##
+### 结构 ###
 
-Django
+    weibotools
+        |--added          一些工具,部署不需要上传
+        |--httplib2       instagram需要的模组  
+        |--instagram      instagram官方python sdk
+        |--conf.py        weibotools配置文件
+        |--config.yaml    SAE的配置文件
+        |--index.wgsi     tornado main文件
+        |--qqweibo.py     腾讯微博sdk
+        |--rss.xml        rss模版
+        |--sina.py        新浪微博api简单封装
+        |--sync.py        同步的核心逻辑
+        |--tenc.py        腾讯微博api简单封装
+        |--weibo.py       新浪微博sdk
 
-### 设计思路 ###
+### 依赖 ###
 
-*  主页登录微博授权
-*  授权回调后，保存用户id,access_token,expires_in到数据库，如已存在该id则更新数据，回调页面返回用户timeline与favorites rss的链接地址。
-*  RSS地址输入用户id查找数据库获取access_token,expires_in，调用微博API接口获取数据并渲染到xml模版输出RSS内容
-*  补充了一个clean视图函数用于每个星期定时清理授权过期的access_token，config.yaml保持有定时配置
+- 新浪微博sdk:[@michaelliao](https://github.com/michaelliao/sinaweibopy);
+- 腾讯微博sdk:[@jinuljt](https://github.com/jinuljt/qqweibov2);
+- IG(instagram) sdk:[@yibin001](https://github.com/yibin001/Instagram4sae).
+
+### 设计 ###
+
+#### 功能1 ####
+
+/rss /fav url 收到get请求后,获取10条最新微博,tornado渲染模版,返回rss应答请求.
+
+#### 功能2 ####
+
+定时任务触发get /sync请求,获取最新1条新浪微博,匹配memcached保存的微博id,如果大于保存的id,则同步该条微博到腾讯微博,
+如小于或等于则pass.5分钟轮询1次,如果5分钟内发了多条微博,可能会出现同步丢失的情况.同步延时<=5min.
+
+#### 功能3 ###
+
+IG用户上传1张图片,触发post到回调url /call,weibottols获取IG最新的图片,并发布到新浪微博.实时同步,基本无延时.
+
+## 扩展 ##
+
+自从有了[ifttt](http://ifttt.com)终于可以在墙内同步信息到墙外的信息了,
+weibotools生成rss配合ifttt即可同步tweet到twiter,facebook,收藏夹rss可以同步到印象笔记.
+
+请联系[@Timmy](http://weibo.com/zhu327)
