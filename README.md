@@ -1,5 +1,7 @@
 # WeiboTools #
 
+[@Timmy](http://weibo.com/zhu327)
+
 ## 功能 ##
 
 1. 新浪微博时间线与收藏夹生成rss;
@@ -110,4 +112,4 @@ IG用户上传1张图片,触发post到回调url /call,weibottols获取IG最新�
 自从有了[ifttt](http://ifttt.com)终于可以在墙内同步信息到墙外的信息了,
 weibotools生成rss配合ifttt即可同步tweet到twiter,facebook,收藏夹rss可以同步到印象笔记.
 
-请联系[@Timmy](http://weibo.com/zhu327)
+
