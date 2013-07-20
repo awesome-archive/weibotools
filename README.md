@@ -28,10 +28,10 @@ config.yaml
     version: 1
     accesskey: 
     cron:
-        - description: cron sync
-          url: sync
-          schedule: every 5 mins
-          timezone: Beijing
+    - description: cron sync
+      url: sync
+      schedule: every 5 mins
+      timezone: Beijing
 
 name字段改为SAE应用名称,accesskey字段改为SAE应用对应的accesskey值,该值在SAE应用管理界面可以找到.
 
@@ -112,4 +112,6 @@ IG用户上传1张图片,触发post到回调url /call,weibotools获取IG最新�
 自从有了[ifttt](http://ifttt.com)终于可以在墙内同步信息到墙外的信息了,
 weibotools生成rss配合ifttt即可同步tweet到twiter,facebook,收藏夹rss可以同步到印象笔记.
 
+## 问题 ##
 
+SAE连接调用IG api可能超时,造成部分图片可能不能同步成功,这不是代码问题.
