@@ -1,16 +1,13 @@
-name: ''xxxx''
+---
+name: pythonweibo
 version: 1
-
-
+accesskey: 4x2n5kw2j1
+worker: tornado
 libraries:
-- name: django
-  version: "1.4"
-handlers:
-- url: /static
-  static_dir: static
-
-
+- name: tornado
+  version: "2.4.1"
 cron:
-- description: cron_clean
-  url: /admin/root/weibo/clean
-  schedule: "0 0 * * 0"
+- description: cron sync
+  url: sync
+  schedule: every 5 mins
+  timezone: Beijing
