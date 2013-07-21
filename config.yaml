@@ -1,7 +1,7 @@
 ---
 name: pythonweibo
 version: 1
-accesskey: 4x2n5kw2j1
+accesskey: 
 worker: tornado
 libraries:
 - name: tornado
