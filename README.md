@@ -1,6 +1,6 @@
 # WeiboTools #
 
-[@Timmy](http://weibo.com/zhu327)
+[@Timmy](http://weibo.com/zhu327) [@ccbikai](http://weibo.com/ccbikai)
 
 ## 功能 ##
 

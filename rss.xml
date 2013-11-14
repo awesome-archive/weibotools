@@ -1,20 +1,27 @@
 <?xml version="1.0"?>
 <rss version="2.0">
   <channel>
-    <title>{{ user.name }}的新浪微博</title>
+    <title>{{ user.name }}的新浪微博时间轴</title>
     <link>http://weibo.com/u/{{ user.id }}</link>
-    <description></description>
+    <description>{{ user.name }}的新浪微博时间轴</description>
     <language>zh-cn</language>
     <pubDate>{{ statuses[0].created_at }}</pubDate>
     <lastBuildDate>{{ statuses[0].created_at }}</lastBuildDate>
     {% for tweet in statuses %}
     <item>
       <title><![CDATA[{{ tweet.text }}]]></title>
-      <link>http://api.t.sina.com.cn/{{ tweet.user.id }}/statuses/{{ tweet.id }}?source={{ appkey }}</link>
+      <link>http://api.t.sina.com.cn/{{ tweet.user.id }}/statuses/{{ tweet.id }}</link>
       <author>{{ tweet.user.name }}</author>
-      <description><![CDATA[<p>{{ tweet.text }}</p>{% if 'original_pic' in tweet.keys() %}<p><img border="0" src="{{ tweet.original_pic }}" /></p>{% end %}]]></description>
+        <description><![CDATA[<p>{{ tweet.user.name }}：{{ tweet.text }}</p>
+{% if 'original_pic' in tweet.keys() %}
+<p>{% for i in range(0,len(tweet.pic_urls)) %}
+<a href="{{ tweet.pic_urls[i].thumbnail_pic.replace('thumbnail','large') }}" class="fancybox" rel="gallery2"><img border="0" src="{{ tweet.pic_urls[i].thumbnail_pic.replace('thumbnail','large') }}" /></a>
+{% end %}</p>
+{% end %}
+]]></description>
       <pubDate>{{ tweet.created_at }}</pubDate>
-      <guid>http://api.t.sina.com.cn/{{ tweet.user.id }}/statuses/{{ tweet.id }}</guid>
+      <guid>{{ tweet.id }}</guid>
+      <generator>{{ tweet.user.id }}</generator>
     </item>
     {% end %}
   </channel>
