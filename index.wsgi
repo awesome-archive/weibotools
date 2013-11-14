@@ -43,7 +43,7 @@ application = tornado.web.Application([
     (r"/fav", SinaFavRss),
     (r"/sync", Sina2Tenc),
     (r"/call", CallBack),
-    (r"/", tornado.web.RedirectHandler, dict(url="http://github.com/zhu327/weibotools")),
+    (r"/", tornado.web.RedirectHandler, dict(url="http://instagram.sinaapp.com/rss")),
 ], debug=True)
 
 #if __name__ == "__main__":
