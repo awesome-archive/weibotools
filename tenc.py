@@ -32,7 +32,7 @@ class Tenc(object):
         
         return user.data
 
-    def postPic(self, content, pic_url, longitude='116.397717', latitude='39.903224'):
+    def postPic(self, content, pic_url, longitude=None, latitude=None):
         if longitude==None or latitude==None:
             t = self.api.post.t__add_pic(content= content, pic=pic_url)
         else:
