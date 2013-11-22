@@ -5,9 +5,10 @@ from sina import *
 from tenc import *
 from instagram.client import InstagramAPI
 import pylibmc
+import time
 
 __version__ = '0.1'
-__author__ = 'zhu327'
+__author__ = 'ccbikai'
 
 """ 同步逻辑函数实现 """
 
@@ -44,28 +45,27 @@ def sinaFavRss():
 
     return tweets, user, appkey
 
-def sina2tenc():
-    """ 记录最新一条微博id到Memcache,比较id后同步到腾讯 """
-    s = Sina(SINA_CONF['app_key'], SINA_CONF['app_secret'], SINA_CONF['redirect_uri'], SINA_CONF['access_token'])
-    statuses = s.getTimeline(1)
+def tencTlRss():
+    """ 获取微博timeline，并处理为rss.xml模版所需格式 """
+    t = Tenc(TENC_CONF['app_key'], TENC_CONF['app_secret'], TENC_CONF['callback_url'], TENC_CONF['access_token'], TENC_CONF['openid'])
 
-    mc = pylibmc.Client()
+    data = t.getTimeline(RSS_COUNT)
+    name = t.getUid()
+    user = t.getUser(name)
+    appkey = TENC_CONF['app_key']
+    
+    return data, user, appkey
 
-    if statuses[0].id > mc.get("tid"):
-        mc.set("tid", statuses[0].id)
-        t = Tenc(TENC_CONF['app_key'], TENC_CONF['app_secret'], TENC_CONF['callback_url'], TENC_CONF['access_token'], TENC_CONF['openid'])
-        if 'original_pic' in statuses[0].keys():
-            if statuses[0].geo == None:
-                t.postPic(statuses[0].text, statuses[0].original_pic)
-            else:
-                t.postPic(statuses[0].text, statuses[0].original_pic, longitude=statuses[0].geo.coordinates[1], latitude=statuses[0].geo.coordinates[0])
-        else:
-            if statuses[0].geo == None:
-                t.postTweet(statuses[0].text)
-            else:
-                t.postTweet(statuses[0].text, longitude=statuses[0].geo.coordinates[1], latitude=statuses[0].geo.coordinates[0])
+def tencFavRss():
+    """ 获取微博收藏，并处理为rss.xml模版所需格式 """
+    t = Tenc(TENC_CONF['app_key'], TENC_CONF['app_secret'], TENC_CONF['callback_url'], TENC_CONF['access_token'], TENC_CONF['openid'])
 
-    return mc.get("tid")
+    data = t.getFavorites(RSS_COUNT)
+    name = t.getUid()
+    user = t.getUser(name)
+    appkey = TENC_CONF['app_key']
+
+    return data, user, appkey
 
 def inst2sina(userid):
     """ 同步最新一条instagram状态到微博 """
@@ -77,7 +77,7 @@ def inst2sina(userid):
         
         if recent_media['data'][0]['location'] != None:
             if recent_media['data'][0]['caption']:
-                id = s.postTweet(' '.join([recent_media['data'][0]['caption']['text'], recent_media['data'][0]['link']]), 
+                id = s.postTweet(' '.join([recent_media['data'][0]['caption']['text'],recent_media['data'][0]['link']," #instagram#"]), 
                 recent_media['data'][0]['images']['standard_resolution']['url'], 
                 lat=str(recent_media['data'][0]['location']['latitude']), long=str(recent_media['data'][0]['location']['longitude']))
             else:
@@ -85,10 +85,36 @@ def inst2sina(userid):
                 lat=str(recent_media['data'][0]['location']['latitude']), long=str(recent_media['data'][0]['location']['longitude']))
         else:
             if recent_media['data'][0]['caption']:
-                id = s.postTweet(' '.join([recent_media['data'][0]['caption']['text'], recent_media['data'][0]['link']]), 
+                id = s.postTweet(' '.join([recent_media['data'][0]['caption']['text'], recent_media['data'][0]['link']," #instagram#"]), 
                 recent_media['data'][0]['images']['standard_resolution']['url'])
             else:
                 id = s.postTweet(recent_media['data'][0]['link'], recent_media['data'][0]['images']['standard_resolution']['url'])
+    else:
+        return None
+    return id
+
+def inst2tenc(userid):
+    """ 同步最新一条instagram状态到腾讯微博 """
+    api = InstagramAPI(access_token=INST_CONF['access_token'])
+    recent_media, next = api.user_recent_media(user_id=userid, count=1)
+    # 验证request返回值正常，如果不正常，可能是access_token过期
+    if recent_media['meta']['code'] == 200:
+        t = Tenc(TENC_CONF['app_key'], TENC_CONF['app_secret'], TENC_CONF['callback_url'], TENC_CONF['access_token'], TENC_CONF['openid'])
+   
+        if recent_media['data'][0]['location'] != None:
+            if recent_media['data'][0]['caption']:
+                id = t.postPic(' '.join([recent_media['data'][0]['caption']['text'],recent_media['data'][0]['link']," #instagram#"]), 
+                recent_media['data'][0]['images']['standard_resolution']['url'], 
+                lat=str(recent_media['data'][0]['location']['latitude']), long=str(recent_media['data'][0]['location']['longitude']))
+            else:
+                id = t.postPic(recent_media['data'][0]['link'], recent_media['data'][0]['images']['standard_resolution']['url'], 
+                lat=str(recent_media['data'][0]['location']['latitude']), long=str(recent_media['data'][0]['location']['longitude']))
+        else:
+            if recent_media['data'][0]['caption']:
+                id = t.postPic(' '.join([recent_media['data'][0]['caption']['text'], recent_media['data'][0]['link']," #instagram#"]), 
+                recent_media['data'][0]['images']['standard_resolution']['url'])
+            else:
+                id = t.postPic(recent_media['data'][0]['link'], recent_media['data'][0]['images']['standard_resolution']['url'])
     else:
         return None
     return id

@@ -17,4 +17,4 @@ url2 = "https://open.t.qq.com/cgi-bin/oauth2/access_token?client_id=%s&client_se
         % (TENC_CONF['app_key'], TENC_CONF['app_secret'], TENC_CONF['callback_url'])
 
 print "访问该url并记录accesstoken"
-print url1
+print url2

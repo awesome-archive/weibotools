@@ -6,8 +6,3 @@ worker: tornado
 libraries:
 - name: tornado
   version: "2.4.1"
-cron:
-- description: cron sync
-  url: sync
-  schedule: every 5 mins
-  timezone: Beijing

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+{% import time %}
+<rss version="2.0">
+  <channel>
+    <title>{{ user.nick }}的腾讯微博</title>
+    <link>http://t.qq.com/{{ user.name }}</link>
+    <description>{{ user.nick }}的腾讯微博</description>
+    <language>zh-cn</language>
+    <pubDate>{{ time.ctime(data.info[0].timestamp) }} +0800</pubDate>
+    <lastBuildDate>{{ time.ctime(data.info[0].timestamp) }} +0800</lastBuildDate>
+    {% for info in data.info %}
+    <item>
+      <title><![CDATA[{{ info.text }}]]></title>
+      <link>http://t.qq.com/p/t/{{ info.id }}</link>
+      <author>{{ info.name }}@qq.com({{ info.nick }})</author>
+      <description><![CDATA[
+<p>{{ info.nick }}：{{ info.text }}</p>
+{% if 'pic' in info.keys() %}
+<p>
+{% for i in range(0,len(info.pic.info)) %}
+<a href="{{ info.pic.info[i].url[0] }}/2000" ><img border="0" src="{{ info.pic.info[i].url[0] }}/2000" /></a>
+{% end %}
+</p>
+{% end %}
+]]>   </description>
+      <pubDate>{{ time.ctime(info.timestamp) }} +0800</pubDate>
+      <guid>http://t.qq.com/p/t/{{ info.id }}</guid>
+    </item>
+    {% end %}
+  </channel>
+</rss>
