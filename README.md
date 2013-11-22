@@ -5,13 +5,13 @@
 ## 功能 ##
 
 1. 新浪微博时间线与收藏夹生成rss;
-2. 新浪微博新发布原创微博同步到腾讯微博;
-3. instagram发发布图片同步到新浪微博(iphone请无视).
+2. 腾讯微博时间线与收藏夹生成rss;
+3. instagram发发布图片同步到新浪微博,腾讯微博.
 
 ## 部署 ##
 ### 环境 ###
 
-SAE(Sina App Engine) python tornado环境,memcached支持(如果需要功能2).
+SAE(Sina App Engine) python tornado环境.
 
 ### 部署 ###
 
@@ -27,15 +27,9 @@ config.yaml
     name: pythonweibo
     version: 1
     accesskey: 
-    cron:
-    - description: cron sync
-      url: sync
-      schedule: every 5 mins
-      timezone: Beijing
 
 name字段改为SAE应用名称,accesskey字段改为SAE应用对应的accesskey值,该值在SAE应用管理界面可以找到.
 
-如果不需要腾讯微博同步功能cron字段以下的内容应该删除,cron内容定义了定时任务.
 
 conf.py
 
@@ -59,7 +53,7 @@ conf.py
             'openid' : "",
             }
 
-功能2需要开启SAE memcached支持,并保留config.yaml里cron下类容.配置腾讯微博应用参数,
+
 获取access_token和openid的python方法在added目录下的getqq.py脚本可以找到.
 
     # instagram app参数
@@ -80,6 +74,7 @@ conf.py
         |--config.yaml    SAE的配置文件
         |--index.wgsi     tornado main文件
         |--qqweibo.py     腾讯微博sdk
+        |--qqrss.xml      腾讯微博rss模版
         |--rss.xml        rss模版
         |--sina.py        新浪微博api简单封装
         |--sync.py        同步的核心逻辑
@@ -100,8 +95,7 @@ conf.py
 
 #### 功能2 ####
 
-定时任务触发get /sync请求,获取最新1条新浪微博,匹配memcached保存的微博id,如果大于保存的id,则同步该条微博到腾讯微博,
-如小于或等于则pass.5分钟轮询1次,如果5分钟内发了多条微博,可能会出现同步丢失的情况.同步延时<=5min.
+/qqrss /qqfav url 收到get请求后,获取10条最新微博,tornado渲染模版,返回rss应答请求.
 
 #### 功能3 ###
 
