@@ -4,8 +4,8 @@
 
 ## 功能 ##
 
-1. 新浪微博时间线与收藏夹生成rss;
-2. 腾讯微博时间线与收藏夹生成rss;
+1. 新浪微博时间线与收藏夹生成rss（支持多图微博）;
+2. 腾讯微博时间线与收藏夹生成rss（支持多图微博）;
 3. instagram发发布图片同步到新浪微博,腾讯微博.
 
 ## 部署 ##
@@ -54,7 +54,7 @@ conf.py
             }
 
 
-获取access_token和openid的python方法在added目录下的getqq.py脚本可以找到.
+获取access_token和openid的python方法在added目录下的getqq.py脚本可以找到.也可能到腾讯微博开放平台用API测试工具获取。
 
     # instagram app参数
     INST_CONF = {
