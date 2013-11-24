@@ -12,7 +12,7 @@
     <item>
       <title><![CDATA[{{ info.text }}]]></title>
       <link>http://t.qq.com/p/t/{{ info.id }}</link>
-      <author>{{ info.name }}@qq.com({{ info.nick }})</author>
+      <author>{{ info.nick }}</author>
       <description><![CDATA[
 <p>{{ info.nick }}：{{ info.text }}</p>
 {% if 'pic' in info.keys() %}
